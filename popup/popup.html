@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YT DOWNLOADER</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img class="logo" src="../icons/96.png" alt="" width="44" height="44">
+    <div class="brand">
+      <h1>YT DOWNLOADER</h1>
+      <p>Video &amp; audio, any quality</p>
+    </div>
+  </header>
+
+  <div id="upbanner" class="upbanner" hidden>
+    <div class="uptext"><b id="uptitle">Update available</b><span id="upsub"></span></div>
+    <div class="upbtns"><a id="upget" class="upbtn" href="#" target="_blank" rel="noopener">Download</a><button id="upskip" class="link" title="Hide this version">Skip</button></div>
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="queue" role="tab">Queue <span id="qbadge" class="pill" hidden></span></button>
+    <button class="tab" data-tab="history" role="tab">History</button>
+    <button class="tab" data-tab="settings" role="tab">Settings</button>
+  </nav>
+
+  <main>
+    <!-- QUEUE: only downloads that are in progress (or need attention) -->
+    <section id="queue" class="panel active">
+      <div class="toolbar">
+        <span id="qsummary" class="muted"></span>
+        <button id="qcancel" class="link" hidden>Cancel all</button>
+      </div>
+      <div class="notice" id="qtip" hidden>Keep your YouTube tab open while a download runs. Closing or reloading that tab stops it.</div>
+      <div class="scroll"><ul id="qlist" class="cards"></ul></div>
+      <div id="qempty" class="empty">
+        <div class="empty-icon"><svg viewBox="0 0 24 24" width="26" height="26"><path fill="currentColor" d="M12 3a1 1 0 0 1 1 1v9.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.4l3.3 3.3V4a1 1 0 0 1 1-1zM5 19h14a1 1 0 1 1 0 2H5a1 1 0 1 1 0-2z"/></svg></div>
+        <strong>Queue is empty</strong>
+        <span>Active downloads appear here. When they finish they move to History.</span>
+      </div>
+    </section>
+
+    <!-- HISTORY: virtualised, grouped by day -->
+    <section id="history" class="panel">
+      <div class="toolbar hist-tools">
+        <div class="search">
+          <svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M10.5 3a7.5 7.5 0 0 1 5.9 12.1l4.3 4.3a1 1 0 0 1-1.4 1.4l-4.3-4.3A7.5 7.5 0 1 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z"/></svg>
+          <input id="hsearch" type="search" placeholder="Search history" spellcheck="false" autocomplete="off">
+        </div>
+        <button id="hfolder" class="iconbtn" title="Open downloads folder"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z"/></svg></button>
+      </div>
+      <div class="toolbar sub">
+        <div class="chips" id="hchips">
+          <button class="chip on" data-f="all">All</button>
+          <button class="chip" data-f="video">Video</button>
+          <button class="chip" data-f="audio">Audio</button>
+        </div>
+        <span class="right"><span id="hcount" class="muted"></span><button id="hclear" class="link" hidden>Clear all</button></span>
+      </div>
+      <div id="hvp" class="viewport"><div id="hspacer"></div></div>
+      <div id="hempty" class="empty">
+        <div class="empty-icon"><svg viewBox="0 0 24 24" width="26" height="26"><path fill="currentColor" d="M12 4a8 8 0 1 1-7.9 9.2 1 1 0 1 1 2-.3A6 6 0 1 0 8 7.7l1.3 1.3A.5.5 0 0 1 9 9.9H4.5a.5.5 0 0 1-.5-.5V4.9a.5.5 0 0 1 .9-.4L6.6 6A8 8 0 0 1 12 4zm1 3v4.6l3 1.8a1 1 0 0 1-1 1.7l-3.5-2.1a1 1 0 0 1-.5-.9V7a1 1 0 1 1 2 0z"/></svg></div>
+        <strong id="hempty-t">No downloads yet</strong>
+        <span id="hempty-s">Finished downloads show up here with their date and time.</span>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="settings" class="panel">
+      <div class="scroll pad">
+        <h2>When I press the player button</h2>
+        <label class="radio"><input type="radio" name="mode" value="ask"><span><b>Ask me every time</b><small>Pick format and quality from a menu</small></span></label>
+        <label class="radio"><input type="radio" name="mode" value="default"><span><b>Download with my defaults</b><small>Starts immediately, no questions</small></span></label>
+
+        <h2>My defaults</h2>
+        <div class="field">
+          <label for="type">Download</label>
+          <select id="type"><option value="video">Video (with sound)</option><option value="audio">Audio only</option></select>
+        </div>
+        <div id="videoFields">
+          <div class="field">
+            <label for="container">Video format</label>
+            <select id="container">
+              <option value="mp4">MP4 (H.264), most compatible</option>
+              <option value="webm">WebM (VP9 / AV1)</option>
+              <option value="mkv">MKV, plays everything</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="height">Video quality</label>
+            <select id="height">
+              <option value="best">Best available</option>
+              <option value="2160">2160p (4K)</option><option value="1440">1440p</option><option value="1080">1080p</option>
+              <option value="720">720p</option><option value="480">480p</option><option value="360">360p</option>
+              <option value="240">240p</option><option value="144">144p</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="audio">Audio-only format</label>
+          <select id="audio"><option value="m4a">M4A (AAC), most compatible</option><option value="opus">WebM (Opus), best quality</option></select>
+        </div>
+        <p class="hint">MP4 plays everywhere. WebM is smaller and offers 1440p/4K more often. MKV keeps the best quality and opens in VLC and most players. If your quality isn’t offered in a format, the closest lower one is used.</p>
+
+        <h2>Save location</h2>
+        <div class="field stack">
+          <label for="basefolder">Folder inside Downloads</label>
+          <input id="basefolder" type="text" placeholder="e.g. Music/YouTube" spellcheck="false">
+        </div>
+        <p class="hint">Chrome only lets extensions save inside your Downloads folder. Leave blank for the default.</p>
+
+        <h2>Downloads</h2>
+        <div class="field">
+          <label for="parallel">At the same time</label>
+          <select id="parallel"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+        </div>
+        <p class="hint">Each running download is held in memory, so keep this low for long or 4K videos.</p>
+
+        <h2>Updates</h2>
+        <div class="field">
+          <label for="autoupdate">Check for updates daily</label>
+          <select id="autoupdate"><option value="1">On</option><option value="0">Off</option></select>
+        </div>
+        <div class="field">
+          <span id="upstatus" class="muted">Version <span id="curver"></span></span>
+          <button id="upcheck" class="sbtn mini">Check now</button>
+        </div>
+        <p class="hint" id="uphelp">To update: download the new zip, replace the contents of your extension folder with it, then press the reload icon on chrome://extensions. Your history and settings are kept.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="love">
+      <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path fill="#ff4d6d" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.3 2.9 5 6.2 5c2 0 3.2 1 3.8 2 .6-1 1.8-2 3.8-2 3.3 0 5.3 3.3 3.8 6.8C19.5 16.4 12 21 12 21z"/></svg>
+      <span>Made with love by Archimetrix</span>
+    </div>
+    <div class="support">
+      <a class="sbtn coffee" href="https://buymeacoffee.com/archimetrix" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M4 8h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8zm13 1h1.5a2.5 2.5 0 0 1 0 5H17v-2h1.5a.5.5 0 0 0 0-1H17V9zM7 2.5a1 1 0 0 1 2 0c0 .8-.4 1.2-.4 1.8 0 .4.2.7.2.7H7s.3-.6.3-1.2c0-.7-.3-.9-.3-1.3zm4 0a1 1 0 0 1 2 0c0 .8-.4 1.2-.4 1.8 0 .4.2.7.2.7H11s.3-.6.3-1.2c0-.7-.3-.9-.3-1.3zM3 20h15a1 1 0 1 1 0 2H3a1 1 0 1 1 0-2z"/></svg>
+        Buy me a coffee
+      </a>
+      <a class="sbtn upi" href="https://buymeatea.online/archimetrix" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M6 4h12a1 1 0 1 1 0 2h-2.6c.4.6.6 1.2.7 2H18a1 1 0 1 1 0 2h-1.9c-.5 2.6-2.5 4.2-5.6 4.3L16.7 19a1 1 0 0 1-1.4 1.4L8.6 13.5a1 1 0 0 1 .7-1.7h1.2c2.2 0 3.3-.8 3.6-1.8H7a1 1 0 1 1 0-2h7.4c-.4-.7-1.3-1.2-3.4-1.2H6a1 1 0 1 1 0-2z"/></svg>
+        UPI Support
+      </a>
+    </div>
+  </footer>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+/* YT DOWNLOADER - Apache-2.0 */
+.ytdl-btn { background: none !important; border: 0 !important; cursor: pointer; display: inline-flex !important; align-items: center; justify-content: center; width: 48px; padding: 0 !important; opacity: .9; }
+.ytdl-btn svg { width: 36px; height: 36px; }
+.ytdl-btn:hover { opacity: 1; }
+.ytdl-btn.ytdl-busy svg { animation: ytdl-pulse 1.1s ease-in-out infinite; }
+@keyframes ytdl-pulse { 50% { transform: translateY(3px); opacity: .55; } }
+
+.ytdl-menu {
+  position: absolute; right: 12px; bottom: 62px; z-index: 2400; width: 300px; max-height: calc(100% - 84px);
+  display: flex; flex-direction: column; overflow: hidden;
+  background: rgba(24, 24, 28, .96); color: #f1f1f1; border-radius: 14px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.55); border: 1px solid rgba(255,255,255,.08);
+  font: 400 13px/1.35 Roboto, Arial, sans-serif; backdrop-filter: blur(10px);
+}
+.ytdl-menu-head { padding: 12px 16px 8px; font-size: 15px; font-weight: 600; letter-spacing: .2px; }
+.ytdl-menu-body { overflow-y: auto; padding: 0 6px 6px; scrollbar-width: thin; scrollbar-color: #555 transparent; }
+.ytdl-sec { padding: 8px 10px 2px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: #ff7a59; }
+.ytdl-row {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: baseline; width: 100%;
+  padding: 6px 10px; border: 0; border-radius: 8px; background: transparent; color: inherit; cursor: pointer; text-align: left; font: inherit;
+}
+.ytdl-row:hover { background: rgba(255,255,255,.1); }
+.ytdl-row-main { font-weight: 600; min-width: 74px; }
+.ytdl-row-sub { color: #aaa; font-size: 12px; }
+.ytdl-row-size { color: #aaa; font-size: 12px; }
+.ytdl-muted { padding: 12px 10px; color: #aaa; }
+.ytdl-bad { color: #ff8a8a; }
+.ytdl-foot { display: flex; gap: 6px; align-items: center; justify-content: center; padding: 8px; border-top: 1px solid rgba(255,255,255,.08); font-size: 11px; color: #aaa; }
+
+.ytdl-toast {
+  position: absolute; left: 14px; bottom: 70px; z-index: 2500; width: min(340px, 70%);
+  padding: 10px 12px; border-radius: 12px; background: rgba(24,24,28,.96); color: #fff;
+  font: 500 13px/1.35 Roboto, Arial, sans-serif; box-shadow: 0 8px 30px rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.08);
+}
+.ytdl-toast[data-tone="ok"] { border-color: #3ddc97; }
+.ytdl-toast[data-tone="error"] { border-color: #ff5d5d; }
+.ytdl-toast-row { display: flex; gap: 8px; align-items: flex-start; justify-content: space-between; }
+.ytdl-toast-text { word-break: break-word; }
+.ytdl-toast-x { background: none; border: 0; color: #bbb; cursor: pointer; font-size: 14px; padding: 0 2px; }
+.ytdl-toast-x:hover { color: #fff; }
+.ytdl-bar { height: 4px; margin-top: 8px; border-radius: 2px; background: rgba(255,255,255,.15); overflow: hidden; position: relative; }
+.ytdl-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ff3d57, #ff9a3d); transition: width .25s linear; }
+.ytdl-bar.ytdl-indeterminate i { position: absolute; width: 35%; animation: ytdl-slide 1.1s ease-in-out infinite; }
+@keyframes ytdl-slide { from { left: -35%; } to { left: 100%; } }
+
+/* queue count on the player button */
+.ytdl-btn { position: relative; }
+.ytdl-btn[data-count]:not([data-count=""])::after {
+  content: attr(data-count); position: absolute; top: 6px; right: 2px; min-width: 14px; height: 14px; padding: 0 3px;
+  border-radius: 7px; background: #ff3d57; color: #fff; font: 700 10px/14px Roboto, Arial, sans-serif; text-align: center;
+}
+
+/* format picker + footer links */
+.ytdl-seg { display: flex; gap: 4px; margin: 6px 10px 4px; padding: 3px; border-radius: 10px; background: rgba(255,255,255,.08); }
+.ytdl-seg-btn { flex: 1; padding: 5px 0; border: 0; border-radius: 8px; background: transparent; color: #bbb; font: 600 12px Roboto, Arial, sans-serif; cursor: pointer; }
+.ytdl-seg-btn:hover { color: #fff; }
+.ytdl-seg-btn.on { background: linear-gradient(135deg, #ff3d57, #ff7a3d); color: #fff; }
+.ytdl-foot a { color: #ffb4a0; text-decoration: none; font-weight: 600; margin-left: 4px; }
+.ytdl-foot a:hover { text-decoration: underline; }

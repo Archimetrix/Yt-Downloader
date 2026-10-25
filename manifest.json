@@ -1,0 +1,58 @@
+{
+  "manifest_version": 3,
+  "name": "YT DOWNLOADER",
+  "short_name": "YT DOWNLOADER",
+  "version": "1.4.0",
+  "description": "Download YouTube videos and audio in MP4, WebM, MKV or M4A at any quality. Made with love by Archimetrix.",
+  "author": "Archimetrix",
+  "minimum_chrome_version": "111",
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "96": "icons/96.png",
+    "128": "icons/128.png"
+  },
+  "permissions": [
+    "storage",
+    "downloads",
+    "alarms"
+  ],
+  "action": {
+    "default_title": "YT DOWNLOADER - queue & history",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/16.png",
+      "32": "icons/32.png",
+      "48": "icons/48.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.youtube.com/*"
+      ],
+      "js": [
+        "main.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://www.youtube.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1JTDvwmrQHNMUe1n86EJRVT/BMVa2rVqeU/ge9BZdVjGHmTtEpQX9R9+zKpWFQxUS47KM/Ce5C5zvqjyOvVMoPVdAcs2KMpjCTSKOF/NQcYcVf1wPmjubhYdO33xgWFwoENZaC01qLJ7/BuUMWd/PDhyWSNTG98DJHPbanT6JpUYTqmBPzuu7o9DRCYWbGfsUrmteFFMxlcJKoV4UW57R1ANYzNnAY6EN/VL2S92Tg3p+ZfelL0tNhCC3ud2obJ/DwDI0tIWcTVZyTVwkg/bQeSmN3+Z75a2puujM/rZnUsXWuu40KZqhv3qH8/c9modRaJthI/NSjhTT+G3aZsdZQIDAQAB"
+}
