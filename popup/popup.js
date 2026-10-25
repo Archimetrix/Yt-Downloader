@@ -1,5 +1,5 @@
 // YT DOWNLOADER - popup. Apache-2.0.
-const DEFAULTS = { askEveryTime: true, defaultType: 'video', defaultHeight: 'best', defaultAudio: 'm4a', defaultContainer: 'mp4', autoUpdateCheck: true, baseFolder: '', maxParallel: 2 };
+const DEFAULTS = { askEveryTime: true, defaultType: 'video', defaultHeight: 'best', defaultAudio: 'm4a', defaultContainer: 'mp4', autoUpdateCheck: true, maxParallel: 2 };
 const $ = (s) => document.querySelector(s);
 const PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="96" height="54"><rect width="96" height="54" fill="#8884"/><path d="M40 17l20 10-20 10z" fill="#8888"/></svg>');
 const thumbUrl = (id) => `https://i.ytimg.com/vi/${encodeURIComponent(id)}/mqdefault.jpg`;
@@ -208,10 +208,15 @@ $('#hclear').addEventListener('click', async (e) => {
 /* ----------------------------- SETTINGS ----------------------------- */
 async function loadSettings() {
   const s = { ...DEFAULTS, ...(await chrome.storage.sync.get(DEFAULTS)) };
+  const f = await chrome.storage.sync.get(['baseFolder', 'videoFolder', 'audioFolder']);
+  // older versions had a single folder: keep using it for both until the user changes it
+  const oldFolder = f.baseFolder || '';
+  $('#videofolder').value = f.videoFolder ?? oldFolder;
+  $('#audiofolder').value = f.audioFolder ?? oldFolder;
   document.querySelector(`input[name=mode][value=${s.askEveryTime ? 'ask' : 'default'}]`).checked = true;
   $('#type').value = s.defaultType; $('#height').value = s.defaultHeight; $('#audio').value = s.defaultAudio;
   $('#container').value = ['mp4', 'webm', 'mkv'].includes(s.defaultContainer) ? s.defaultContainer : 'mp4';
-  $('#autoupdate').value = s.autoUpdateCheck ? '1' : '0'; $('#basefolder').value = s.baseFolder; $('#parallel').value = String(s.maxParallel);
+  $('#autoupdate').value = s.autoUpdateCheck ? '1' : '0'; $('#parallel').value = String(s.maxParallel);
   $('#videoFields').style.display = s.defaultType === 'audio' ? 'none' : '';
 }
 function saveSettings() {
@@ -220,10 +225,10 @@ function saveSettings() {
   chrome.storage.sync.set({
     askEveryTime: document.querySelector('input[name=mode]:checked').value === 'ask',
     defaultType: type, defaultHeight: $('#height').value, defaultAudio: $('#audio').value, defaultContainer: $('#container').value,
-    autoUpdateCheck: $('#autoupdate').value === '1', baseFolder: $('#basefolder').value.trim(), maxParallel: Number($('#parallel').value),
+    autoUpdateCheck: $('#autoupdate').value === '1', videoFolder: $('#videofolder').value.trim(), audioFolder: $('#audiofolder').value.trim(), maxParallel: Number($('#parallel').value),
   });
 }
-document.querySelectorAll('input[name=mode], #type, #height, #audio, #container, #parallel, #autoupdate, #basefolder').forEach((e) => e.addEventListener('change', saveSettings));
+document.querySelectorAll('input[name=mode], #type, #height, #audio, #container, #parallel, #autoupdate, #videofolder, #audiofolder').forEach((e) => e.addEventListener('change', saveSettings));
 loadSettings();
 
 /* ------------------------------ UPDATES ------------------------------ */

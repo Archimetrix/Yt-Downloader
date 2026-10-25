@@ -6,7 +6,7 @@
 
 **Download YouTube videos and audio in MP4, WebM, MKV or M4A, at any quality, right from the player.**
 
-![Extension version](https://img.shields.io/badge/version-1.0.0-ff3d57?style=for-the-badge)
+![Extension version](https://img.shields.io/badge/version-1.1.0-ff3d57?style=for-the-badge)
 ![Manifest](https://img.shields.io/badge/Manifest-V3-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)
 ![Chrome](https://img.shields.io/badge/Chrome-111%2B-34A853?style=for-the-badge&logo=googlechrome&logoColor=white)
 ![Chromium](https://img.shields.io/badge/Chromium--based-supported-FF8A3D?style=for-the-badge)
@@ -23,7 +23,7 @@
 | | |
 |---|---|
 | **Extension name** | YT DOWNLOADER |
-| **Extension version** | `1.0.0` |
+| **Extension version** | `1.1.0` |
 | **Manifest version** | `3` (MV3) |
 | **Browsers** | Google Chrome 111 or newer, and other Chromium-based browsers with MV3 support (Edge, Brave, Opera, Vivaldi). Only Chrome is tested. Firefox and Safari are not supported. |
 | **Permissions** | `storage`, `downloads`, `alarms` |

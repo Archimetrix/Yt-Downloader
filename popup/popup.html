@@ -124,10 +124,14 @@
 
         <h2>Save location</h2>
         <div class="field stack">
-          <label for="basefolder">Folder inside Downloads</label>
-          <input id="basefolder" type="text" placeholder="e.g. Music/YouTube" spellcheck="false">
+          <label for="videofolder">Video folder inside Downloads</label>
+          <input id="videofolder" type="text" placeholder="e.g. YouTube/Videos" spellcheck="false">
         </div>
-        <p class="hint">Chrome only lets extensions save inside your Downloads folder. Leave blank for the default.</p>
+        <div class="field stack">
+          <label for="audiofolder">Audio folder inside Downloads</label>
+          <input id="audiofolder" type="text" placeholder="e.g. YouTube/Music" spellcheck="false">
+        </div>
+        <p class="hint">Videos and audio-only downloads can go to different folders. Chrome only lets extensions save inside your Downloads folder. Leave a box blank to use the Downloads folder itself.</p>
 
         <h2>Downloads</h2>
         <div class="field">

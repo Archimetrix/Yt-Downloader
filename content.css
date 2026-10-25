@@ -57,3 +57,50 @@
 .ytdl-seg-btn.on { background: linear-gradient(135deg, #ff3d57, #ff7a3d); color: #fff; }
 .ytdl-foot a { color: #ffb4a0; text-decoration: none; font-weight: 600; margin-left: 4px; }
 .ytdl-foot a:hover { text-decoration: underline; }
+
+/* ------------------------------ star gate ------------------------------ */
+.ytdl-gate {
+  position: absolute; inset: 0; z-index: 2700; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.62); backdrop-filter: blur(4px); padding: 12px; box-sizing: border-box; overflow: auto;
+  font: 400 14px/1.45 Roboto, Arial, sans-serif; color: #f1f1f1; cursor: default; text-align: left;
+}
+.ytdl-gate-card {
+  position: relative; width: min(440px, 100%); max-height: 100%; overflow-y: auto; box-sizing: border-box; padding: 24px 26px 20px;
+  background: rgba(24,24,28,.98); border: 1px solid rgba(255,255,255,.1); border-radius: 18px;
+  box-shadow: 0 16px 60px rgba(0,0,0,.6); scrollbar-width: thin;
+}
+.ytdl-gate-x { position: absolute; top: 10px; right: 12px; background: none; border: 0; color: #aaa; font-size: 16px; cursor: pointer; padding: 4px 6px; }
+.ytdl-gate-x:hover { color: #fff; }
+.ytdl-gate-emoji { font-size: 34px; line-height: 1; margin-bottom: 8px; }
+.ytdl-gate-title { margin: 0 0 10px; font: 700 20px/1.25 Roboto, Arial, sans-serif; color: #fff; }
+.ytdl-gate-p { margin: 0 0 10px; color: #d6d6d6; font-size: 14px; }
+.ytdl-gate-steps { margin: 12px 0 14px; padding: 10px 12px 10px 32px; border-radius: 12px; background: rgba(255,255,255,.06); color: #ddd; font-size: 13px; }
+.ytdl-gate-steps li { margin: 3px 0; padding-left: 2px; }
+.ytdl-gate-steps b { color: #fff; }
+.ytdl-gate-note { margin: 0 0 12px; padding: 9px 12px; border-radius: 10px; background: rgba(255,93,93,.12); border: 1px solid rgba(255,93,93,.4); color: #ffc2c2; font-size: 13px; }
+.ytdl-gate-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+.ytdl-gate-row.center { justify-content: center; margin-top: 8px; }
+.ytdl-gate-btn {
+  flex: 1 1 150px; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 40px; padding: 9px 14px;
+  border-radius: 10px; border: 1px solid transparent; font: 600 14px Roboto, Arial, sans-serif; text-decoration: none; cursor: pointer; text-align: center;
+}
+.ytdl-gate-btn.primary { background: linear-gradient(135deg, #ff3d57, #ff7a3d); color: #fff; }
+.ytdl-gate-btn.primary:hover:not(:disabled) { filter: brightness(1.1); }
+.ytdl-gate-btn.primary:disabled { opacity: .6; cursor: default; }
+.ytdl-gate-btn.ghost { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.18); color: #fff; }
+.ytdl-gate-btn.ghost:hover { background: rgba(255,255,255,.16); }
+.ytdl-gate-btn.text { flex: 0 0 auto; min-height: 0; padding: 6px 10px; background: none; color: #aaa; font-weight: 500; font-size: 13px; }
+.ytdl-gate-btn.text:hover { color: #fff; text-decoration: underline; }
+.ytdl-gate-card > .ytdl-gate-btn.text { display: flex; margin: 8px auto 0; }
+.ytdl-gate-fine { margin: 10px 0 0; text-align: center; font-size: 11.5px; color: #8e8e93; }
+.ytdl-gate-fine a { color: #ffb4a0; text-decoration: none; }
+.ytdl-gate-fine a:hover { text-decoration: underline; }
+.ytdl-gate-code {
+  margin: 8px 0 14px; padding: 14px 10px; text-align: center; border-radius: 12px; background: rgba(255,255,255,.07); border: 1px dashed rgba(255,255,255,.28);
+  font: 700 30px/1 ui-monospace, Menlo, Consolas, monospace; letter-spacing: .14em; color: #fff; user-select: all;
+}
+.ytdl-gate-card > .ytdl-gate-btn.primary { width: 100%; }
+.ytdl-gate-wait { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 14px 0 0; color: #bbb; font-size: 13px; }
+.ytdl-gate-spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,.2); border-top-color: #ff7a3d; animation: ytdl-spin .8s linear infinite; }
+@keyframes ytdl-spin { to { transform: rotate(360deg); } }
+@media (max-height: 420px) { .ytdl-gate-card { padding: 16px 20px 14px; } .ytdl-gate-emoji { display: none; } }
