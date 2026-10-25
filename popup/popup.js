@@ -231,7 +231,7 @@ const ago = (ts) => { if (!ts) return 'never'; const m = Math.round((Date.now() 
 function renderUpdate(info) {
   const cur = chrome.runtime.getManifest().version;
   $('#curver').textContent = cur;
-  if (!info) { $('#upstatus').firstChild.textContent = 'Version '; return; }
+  if (!info) return;
   const show = info.available && info.skipped !== info.version;
   $('#upbanner').hidden = !show;
   if (show) {
@@ -239,15 +239,15 @@ function renderUpdate(info) {
     $('#upsub').textContent = `You have v${cur}. See Settings for how to update.`;
     $('#upget').href = info.url || info.page;
   }
-  $('#upstatus').innerHTML = '';
-  $('#upstatus').append(info.error ? `Couldn't check: ${info.error}` : info.available ? `Update v${info.version} available` : `Up to date (v${cur}) · checked ${ago(info.checkedAt)}`);
 }
 async function loadUpdate() { renderUpdate((await chrome.storage.local.get('updateInfo')).updateInfo); }
 $('#upcheck').addEventListener('click', async (e) => {
   const b = e.currentTarget; b.disabled = true; b.textContent = 'Checking…';
-  try { renderUpdate(await chrome.runtime.sendMessage({ type: 'ytdl:check-update' })); } catch { /* ignore */ }
+  try { const i = await chrome.runtime.sendMessage({ type: 'ytdl:check-update' }); renderUpdate(i); if (i && !i.error && !i.available) { b.textContent = 'Up to date ✓'; await new Promise((r) => setTimeout(r, 1800)); } } catch { /* ignore */ }
   b.disabled = false; b.textContent = 'Check now';
 });
 $('#upskip').addEventListener('click', async () => { await chrome.runtime.sendMessage({ type: 'ytdl:skip-update' }); loadUpdate(); });
 chrome.storage.onChanged.addListener((c, area) => { if (area === 'local' && c.updateInfo) renderUpdate(c.updateInfo.newValue); });
 loadUpdate();
+
+{ const av = document.querySelector('.avatar'); const hide = () => { av.style.display = 'none'; }; av.addEventListener('error', hide, { once: true }); if (av.complete && av.naturalWidth === 0) hide(); }

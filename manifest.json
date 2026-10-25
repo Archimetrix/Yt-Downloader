@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "YT DOWNLOADER",
   "short_name": "YT DOWNLOADER",
-  "version": "1.4.0",
+  "version": "1.0.0",
   "description": "Download YouTube videos and audio in MP4, WebM, MKV or M4A at any quality. Made with love by Archimetrix.",
   "author": "Archimetrix",
   "minimum_chrome_version": "111",

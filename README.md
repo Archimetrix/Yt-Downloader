@@ -6,7 +6,7 @@
 
 **Download YouTube videos and audio in MP4, WebM, MKV or M4A, at any quality, right from the player.**
 
-![Extension version](https://img.shields.io/badge/version-1.4.0-ff3d57?style=for-the-badge)
+![Extension version](https://img.shields.io/badge/version-1.0.0-ff3d57?style=for-the-badge)
 ![Manifest](https://img.shields.io/badge/Manifest-V3-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)
 ![Chrome](https://img.shields.io/badge/Chrome-111%2B-34A853?style=for-the-badge&logo=googlechrome&logoColor=white)
 ![Chromium](https://img.shields.io/badge/Chromium--based-supported-FF8A3D?style=for-the-badge)
@@ -23,7 +23,7 @@
 | | |
 |---|---|
 | **Extension name** | YT DOWNLOADER |
-| **Extension version** | `1.4.0` |
+| **Extension version** | `1.0.0` |
 | **Manifest version** | `3` (MV3) |
 | **Browsers** | Google Chrome 111 or newer, and other Chromium-based browsers with MV3 support (Edge, Brave, Opera, Vivaldi). Only Chrome is tested. Firefox and Safari are not supported. |
 | **Permissions** | `storage`, `downloads`, `alarms` |
@@ -125,15 +125,6 @@ Unpacked extensions can't update themselves, so YT DOWNLOADER checks this reposi
 2. Replace the contents of your extension folder with the new files.
 3. Open `chrome://extensions` and press the **reload** icon on YT DOWNLOADER.
 
-The `key` in `manifest.json` fixes the extension ID (`aoejpgpkcoehhjhneoehmniedmhnipeh`), so Chrome treats the new files as the same extension and your history and settings are kept.
-
-### Publishing a release (maintainers)
-1. Raise `version` in `manifest.json` (for example `1.4.1`).
-2. Zip the extension files so `manifest.json` is at the root of the zip.
-3. On GitHub: **Releases → Draft a new release**, tag `v1.4.1`, attach the zip, publish.
-
-The tag must match the manifest version. If no release exists, the checker falls back to the `version` in `manifest.json` on the `main` branch.
-
 ---
 
 ## 🧩 How it works
@@ -170,11 +161,11 @@ icons/               logo in all required sizes
 
 ---
 
-## 🚫 Not supported
+## 🚫 Not supported currently
 - Playlist downloading.
 - Live streams, and videos YouTube won't play for your account (age, sign-in, region, members-only).
 - MP3 or any re-encoding.
-- Firefox, Safari and non-Chromium browsers.
+- Firefox (may support later ), Safari and non-Chromium browsers.
 
 ---
 
@@ -189,8 +180,15 @@ If this saves you time, you can support its development:
 
 ---
 
-## ⚖ Legal
+## ⚖ Legal & disclaimer
 
-Licensed under the Apache License 2.0 (see `LICENSE` and `NOTICE`). Third-party libraries keep their own licenses (see `THIRD_PARTY_NOTICES.md`).
+> **Important:** YT DOWNLOADER is an **unofficial** project and is **not affiliated with, endorsed by, or sponsored by YouTube or Google**.
 
-Download only content you own or have permission to save. Downloading may violate YouTube's Terms of Service, and Chrome Web Store policy does not allow YouTube downloaders. This project is not affiliated with YouTube or Google.
+- **Personal use only.** Download only content you **own**, that is **public domain or openly licensed**, or that you have **permission** to download.
+- **Terms of Service.** Downloading from YouTube may violate YouTube's Terms of Service and copyright or anti-circumvention laws where you live. You are solely responsible for checking what is lawful for you.
+- **Use at your own risk.** The software is provided **"as is", without warranty of any kind**. The author and contributors are **not liable** for any misuse, copyright claim, account action, loss, or damage arising from its use.
+- **No data collection.** Settings and history stay in your browser. The extension only contacts YouTube, `i.ytimg.com`, and GitHub (update check, avatar).
+- **Not for the Chrome Web Store.** Store policy does not allow YouTube downloaders, so this project is distributed only through GitHub.
+- **Takedown.** If you are a rights holder with a concern, please open an issue. The project may be changed or removed at any time.
+
+Read the full text in [`DISCLAIMER.md`](DISCLAIMER.md). Code is licensed under the Apache License 2.0 (`LICENSE`, `NOTICE`); third-party libraries keep their own licenses (`THIRD_PARTY_NOTICES.md`).
