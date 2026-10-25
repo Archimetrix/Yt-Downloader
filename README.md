@@ -189,6 +189,5 @@ If this saves you time, you can support its development:
 - **Use at your own risk.** The software is provided **"as is", without warranty of any kind**. The author and contributors are **not liable** for any misuse, copyright claim, account action, loss, or damage arising from its use.
 - **No data collection.** Settings and history stay in your browser. The extension only contacts YouTube, `i.ytimg.com`, and GitHub (update check, avatar).
 - **Not for the Chrome Web Store.** Store policy does not allow YouTube downloaders, so this project is distributed only through GitHub.
-- **Takedown.** If you are a rights holder with a concern, please open an issue. The project may be changed or removed at any time.
 
 Read the full text in [`DISCLAIMER.md`](DISCLAIMER.md). Code is licensed under the Apache License 2.0 (`LICENSE`, `NOTICE`); third-party libraries keep their own licenses (`THIRD_PARTY_NOTICES.md`).
