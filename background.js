@@ -8,7 +8,7 @@
  */
 'use strict';
 
-const AUDIO_MARK = '~ytdl-audio~'; // keep in sync with content.js
+const AUDIO_MARK_RE = /^[~_]?ytdl-audio(?:~|--)/; // Chrome may turn a leading ~ into _; keep in sync with content.js // keep in sync with content.js
 
 function cleanName(s) {
   return String(s).replace(/[\\/:*?"<>|\u0000-\u001f]/g, '').replace(/\s+/g, ' ').replace(/^[. ]+|[. ]+$/g, '').slice(0, 80);
@@ -20,16 +20,102 @@ function cleanPath(p) {
 
 chrome.downloads.onDeterminingFilename.addListener((item, suggest) => {
   // Only touch files our page saved (blob: URLs from youtube.com); leave every other download alone.
-  if (typeof item.url !== 'string' || !item.url.startsWith('blob:https://www.youtube.com')) return;
+  if (typeof item.url !== 'string' || !/^blob:https:\/\/www\.youtube\.com/.test(item.url)) return;
   chrome.storage.sync.get({ baseFolder: '', videoFolder: null, audioFolder: null }).then(({ baseFolder, videoFolder, audioFolder }) => {
     let base = (item.filename || '').split(/[\\/]/).pop() || 'video';
     // The page tags audio-only files with AUDIO_MARK in the file name; strip it and use the audio folder.
-    const isAudio = base.startsWith(AUDIO_MARK);
-    if (isAudio) base = base.slice(AUDIO_MARK.length) || 'audio';
+    const markM = base.match(AUDIO_MARK_RE);
+    const isAudio = !!markM;
+    if (isAudio) base = base.slice(markM[0].length) || 'audio';
     // Older versions had one folder for everything: keep using it until the user sets the new ones.
     const dir = cleanPath(isAudio ? (audioFolder ?? baseFolder) : (videoFolder ?? baseFolder));
     suggest({ filename: dir ? `${dir}/${base}` : base, conflictAction: 'uniquify' });
   }).catch(() => suggest());
+  return true;
+});
+
+/* ------------------------------ cover art ------------------------------
+ * Audio downloads can carry the video's thumbnail as cover art. Normal videos have a
+ * 16:9 thumbnail, but real songs (YouTube "Topic" / art tracks) are square album art
+ * sitting inside a black 16:9 frame. We trim those black bars and crop to a true square,
+ * so the cover looks like a normal music library entry.
+ * Runs here (not in the page) because this script may fetch i.ytimg.com without CORS trouble.
+ */
+const LUMA_BAR = 22; // pixels at or below this brightness count as "black bar"
+
+async function fetchThumb(videoId) {
+  for (const name of ['maxresdefault', 'sddefault', 'hqdefault']) {
+    try {
+      const r = await fetch(`https://i.ytimg.com/vi/${encodeURIComponent(videoId)}/${name}.jpg`, { cache: 'no-store' });
+      if (!r.ok) continue;
+      const blob = await r.blob();
+      const bmp = await createImageBitmap(blob);
+      if (bmp.width >= 200 && bmp.height >= 150) return bmp; // tiny grey placeholders are skipped
+    } catch { /* try the next size */ }
+  }
+  return null;
+}
+
+// Bounding box of the non-black content, found on a small copy of the image.
+function contentBox(bmp) {
+  const w = 160, h = Math.max(1, Math.round(160 * bmp.height / bmp.width));
+  const c = new OffscreenCanvas(w, h);
+  const g = c.getContext('2d', { willReadFrequently: true });
+  g.drawImage(bmp, 0, 0, w, h);
+  const d = g.getImageData(0, 0, w, h).data;
+  const colMax = new Uint8Array(w), rowMax = new Uint8Array(h);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4;
+      const l = (d[i] * 299 + d[i + 1] * 587 + d[i + 2] * 114) / 1000;
+      if (l > colMax[x]) colMax[x] = l;
+      if (l > rowMax[y]) rowMax[y] = l;
+    }
+  }
+  let l = 0, r = w - 1, t = 0, b = h - 1;
+  while (l < r && colMax[l] <= LUMA_BAR) l++;
+  while (r > l && colMax[r] <= LUMA_BAR) r--;
+  while (t < b && rowMax[t] <= LUMA_BAR) t++;
+  while (b > t && rowMax[b] <= LUMA_BAR) b--;
+  const sx = bmp.width / w, sy = bmp.height / h;
+  return { x: Math.round(l * sx), y: Math.round(t * sy), w: Math.round((r - l + 1) * sx), h: Math.round((b - t + 1) * sy) };
+}
+
+function toB64(buf) {
+  const u = new Uint8Array(buf); let s = '';
+  for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+
+async function makeCover({ videoId, mode, isTopic }) {
+  if (!videoId || mode === 'off') return null;
+  const bmp = await fetchThumb(videoId);
+  if (!bmp) return null;
+  let box = { x: 0, y: 0, w: bmp.width, h: bmp.height };
+  if (mode !== 'original') {
+    const cb = contentBox(bmp);
+    // Only trust the trim if something sensible is left (a fully dark thumbnail must not be cut to nothing).
+    if (cb.w > bmp.width * 0.2 && cb.h > bmp.height * 0.2) box = cb;
+    const ratio = box.w / box.h;
+    const nearSquare = ratio > 0.88 && ratio < 1.14;
+    if (mode === 'square' || isTopic || nearSquare) {
+      const side = Math.min(box.w, box.h);
+      box = { x: box.x + Math.round((box.w - side) / 2), y: box.y + Math.round((box.h - side) / 2), w: side, h: side };
+    }
+  }
+  const max = 1200, k = Math.min(1, max / Math.max(box.w, box.h));
+  const out = new OffscreenCanvas(Math.round(box.w * k), Math.round(box.h * k));
+  const g = out.getContext('2d');
+  g.imageSmoothingQuality = 'high';
+  g.drawImage(bmp, box.x, box.y, box.w, box.h, 0, 0, out.width, out.height);
+  const blob = await out.convertToBlob({ type: 'image/jpeg', quality: 0.92 });
+  return { b64: toB64(await blob.arrayBuffer()), mime: 'image/jpeg', w: out.width, h: out.height };
+}
+
+chrome.runtime.onMessage.addListener((msg, sender, send) => {
+  if (!msg || msg.type !== 'ytdl:cover') return;
+  if (!sender || !/^https:\/\/www\.youtube\.com\//.test(sender.url || '')) { send(null); return; }
+  makeCover(msg).then(send, () => send(null));
   return true;
 });
 

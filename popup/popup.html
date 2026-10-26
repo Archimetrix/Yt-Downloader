@@ -88,67 +88,89 @@
     <!-- SETTINGS -->
     <section id="settings" class="panel">
       <div class="scroll pad">
-        <h2>When I press the player button</h2>
-        <label class="radio"><input type="radio" name="mode" value="ask"><span><b>Ask me every time</b><small>Pick format and quality from a menu</small></span></label>
-        <label class="radio"><input type="radio" name="mode" value="default"><span><b>Download with my defaults</b><small>Starts immediately, no questions</small></span></label>
 
-        <h2>My defaults</h2>
-        <div class="field">
-          <label for="type">Download</label>
-          <select id="type"><option value="video">Video (with sound)</option><option value="audio">Audio only</option></select>
-        </div>
-        <div id="videoFields">
-          <div class="field">
-            <label for="container">Video format</label>
-            <select id="container">
-              <option value="mp4">MP4 (H.264), most compatible</option>
-              <option value="webm">WebM (VP9 / AV1)</option>
-              <option value="mkv">MKV, plays everything</option>
-            </select>
+        <div class="sgroup">
+          <h2>Download button</h2>
+          <div class="seg" role="radiogroup" aria-label="When I press the player button">
+            <label><input type="radio" name="mode" value="ask"><span>Ask me each time</span></label>
+            <label><input type="radio" name="mode" value="default"><span>Use my defaults</span></label>
           </div>
-          <div class="field">
-            <label for="height">Video quality</label>
-            <select id="height">
-              <option value="best">Best available</option>
-              <option value="2160">2160p (4K)</option><option value="1440">1440p</option><option value="1080">1080p</option>
-              <option value="720">720p</option><option value="480">480p</option><option value="360">360p</option>
-              <option value="240">240p</option><option value="144">144p</option>
-            </select>
+          <p class="sub" id="modehint"></p>
+          <div class="card" id="defrow">
+            <div class="row"><span class="lbl">Default download</span>
+              <div class="seg small" role="radiogroup" aria-label="Default type">
+                <label><input type="radio" name="type" value="video"><span>Video</span></label>
+                <label><input type="radio" name="type" value="audio"><span>Audio</span></label>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="field">
-          <label for="audio">Audio-only format</label>
-          <select id="audio"><option value="m4a">M4A (AAC), most compatible</option><option value="opus">WebM (Opus), best quality</option></select>
-        </div>
-        <p class="hint">MP4 plays everywhere. WebM is smaller and offers 1440p/4K more often. MKV keeps the best quality and opens in VLC and most players. If your quality isn’t offered in a format, the closest lower one is used.</p>
 
-        <h2>Save location</h2>
-        <div class="field stack">
-          <label for="videofolder">Video folder inside Downloads</label>
-          <input id="videofolder" type="text" placeholder="e.g. YouTube/Videos" spellcheck="false">
+        <div class="sgroup">
+          <h2>Video</h2>
+          <div class="card">
+            <div class="row"><label class="lbl" for="container">Format</label>
+              <select id="container" title="MP4 plays everywhere. WebM is smaller and offers 1440p/4K more often. MKV opens in VLC and most players.">
+                <option value="mp4">MP4 · most compatible</option>
+                <option value="webm">WebM · smaller files</option>
+                <option value="mkv">MKV · plays everything</option>
+              </select>
+            </div>
+            <div class="row"><label class="lbl" for="height">Quality</label>
+              <select id="height" title="If your quality isn’t offered in a format, the closest lower one is used.">
+                <option value="best">Best available</option>
+                <option value="2160">2160p (4K)</option><option value="1440">1440p</option><option value="1080">1080p</option>
+                <option value="720">720p</option><option value="480">480p</option><option value="360">360p</option>
+                <option value="240">240p</option><option value="144">144p</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <div class="field stack">
-          <label for="audiofolder">Audio folder inside Downloads</label>
-          <input id="audiofolder" type="text" placeholder="e.g. YouTube/Music" spellcheck="false">
-        </div>
-        <p class="hint">Videos and audio-only downloads can go to different folders. Chrome only lets extensions save inside your Downloads folder. Leave a box blank to use the Downloads folder itself.</p>
 
-        <h2>Downloads</h2>
-        <div class="field">
-          <label for="parallel">At the same time</label>
-          <select id="parallel"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+        <div class="sgroup">
+          <h2>Audio</h2>
+          <div class="card">
+            <div class="row"><label class="lbl" for="audio">Format</label>
+              <select id="audio"><option value="m4a">M4A · most compatible</option><option value="opus">Opus · best quality</option></select>
+            </div>
+            <div class="row"><label class="lbl" for="cover">Cover art</label>
+              <select id="cover" title="Auto detects real songs and saves a clean square cover. Normal videos keep their wide thumbnail. Works best with M4A.">
+                <option value="auto">Auto (square for songs)</option>
+                <option value="square">Always square</option>
+                <option value="original">Original thumbnail</option>
+                <option value="off">None</option>
+              </select>
+            </div>
+          </div>
+          <p class="sub">Title, artist and cover are embedded in audio files.</p>
         </div>
-        <p class="hint">Each running download is held in memory, so keep this low for long or 4K videos.</p>
 
-        <h2>Updates</h2>
-        <div class="field">
-          <label for="autoupdate">Check for updates daily</label>
-          <select id="autoupdate"><option value="1">On</option><option value="0">Off</option></select>
+        <div class="sgroup">
+          <h2>Save to</h2>
+          <div class="card">
+            <div class="row stack"><label class="lbl" for="videofolder">Video folder</label>
+              <input id="videofolder" type="text" placeholder="Downloads (default)" spellcheck="false"></div>
+            <div class="row stack"><label class="lbl" for="audiofolder">Audio folder</label>
+              <input id="audiofolder" type="text" placeholder="Downloads (default)" spellcheck="false"></div>
+          </div>
+          <p class="sub">Folders are created inside Downloads. Use <b>/</b> for sub-folders, e.g. <b>YouTube/Videos</b>.</p>
         </div>
-        <div class="field">
-          <span id="upstatus" class="muted">Version <span id="curver"></span></span>
-          <button id="upcheck" class="sbtn mini">Check now</button>
+
+        <div class="sgroup">
+          <h2>More</h2>
+          <div class="card">
+            <div class="row"><label class="lbl" for="parallel" title="Each running download is held in memory. Keep this low for long or 4K videos.">Downloads at once</label>
+              <select id="parallel"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+            </div>
+            <div class="row"><label class="lbl" for="autoupdate">Check for updates daily</label>
+              <select id="autoupdate"><option value="1">On</option><option value="0">Off</option></select>
+            </div>
+            <div class="row"><span id="upstatus" class="muted">Version <span id="curver"></span></span>
+              <button id="upcheck" class="sbtn mini">Check now</button>
+            </div>
+          </div>
         </div>
+
       </div>
     </section>
   </main>

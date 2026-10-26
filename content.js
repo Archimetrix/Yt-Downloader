@@ -7,10 +7,10 @@
   if (window.__ytdlUi) return;
   window.__ytdlUi = true;
 
-  const DEFAULTS = { askEveryTime: true, defaultType: 'video', defaultHeight: 'best', defaultAudio: 'm4a', defaultContainer: 'mp4', maxParallel: 2 };
+  const DEFAULTS = { askEveryTime: true, defaultType: 'video', defaultHeight: 'best', defaultAudio: 'opus', defaultContainer: 'mp4', maxParallel: 2, coverArt: 'auto' };
   let settings = { ...DEFAULTS };
-  const AUDIO_MARK = '~ytdl-audio~'; // background.js strips this and saves the file to the audio folder
-  const unmark = (s) => String(s || '').replace(AUDIO_MARK, '');
+  const AUDIO_MARK = 'ytdl-audio--'; // background.js strips this and saves the file to the audio folder
+  const unmark = (s) => String(s || '').replace(/^[~_]?ytdl-audio(?:~|--)/, '');
   const jobs = new Map(); // jobId -> { videoId, title, mode, label, sig }
   let releaseLock = null;
   let toastTimer = null;
@@ -28,6 +28,7 @@
 
   const $ = (s, r = document) => r.querySelector(s);
   const player = () => document.getElementById('movie_player');
+  const host = () => player();
   const videoId = () => new URLSearchParams(location.search).get('v');
   const send = (name, detail) => document.dispatchEvent(new CustomEvent(name, { detail: JSON.stringify(detail) }));
   const uid = () => Math.random().toString(36).slice(2, 10);
@@ -35,7 +36,7 @@
 
   /* ------------------------------- toast ------------------------------- */
   function toast({ text, ratio, cancel, sticky, tone }) {
-    const p = player(); if (!p) return;
+    const p = host(); if (!p) return;
     let t = $('.ytdl-toast', p);
     if (!t) {
       t = document.createElement('div');
@@ -55,8 +56,8 @@
     clearTimeout(toastTimer);
     if (!sticky) toastTimer = setTimeout(hideToast, 6000);
   }
-  function hideToast() { $('.ytdl-toast', player() || document)?.remove(); }
-  function setBusy(on) { $('.ytdl-btn')?.classList.toggle('ytdl-busy', on); }
+  function hideToast() { $('.ytdl-toast', host() || document)?.remove(); }
+  function setBusy(on) { document.querySelectorAll('.ytdl-btn').forEach((b) => b.classList.toggle('ytdl-busy', on)); }
 
   /* ------------------------------ probing ------------------------------ */
   function probe(id) {
@@ -124,7 +125,7 @@
   }
 
   function openGate(req) {
-    const p = player(); if (!p) return;
+    const p = host(); if (!p) return;
     closeMenu(); closeGate();
     const pendingVideo = videoId();
     const wrap = mk('div', 'ytdl-gate');
@@ -295,7 +296,7 @@
   const sigOf = (v, r) => [v, r.mode, r.mode === 'audio' ? (r.audioKind || r.audioItag || '') : (r.container || '') + (r.videoItag || r.height || 'best')].join('|');
 
   async function start(req) {
-    const id = videoId();
+    const id = req.videoId || videoId();
     if (!id) return toast({ text: 'Open a video to download it.', tone: 'error' });
     const sig = sigOf(id, req);
     await gate.ready;
@@ -305,16 +306,34 @@
       return toast({ text: `${jobs.size} download${jobs.size > 1 ? 's are' : ' is'} already running. Wait for one to finish, or raise the limit in the extension’s Settings.`, tone: 'error' });
     }
     const jobId = uid();
-    let title = id;
+    let title = id, author = '', meta = null;
     starting++;
-    try { title = (await probe(id)).title || id; } catch { /* keep id */ }
+    try {
+      const pi = await probe(id);
+      title = pi.title || id; author = pi.author || '';
+    } catch { /* keep id */ }
+    try {
+      // Audio files get the song name, artist and (optionally) the thumbnail as cover art.
+      if (req.mode === 'audio') {
+        const isTopic = /\s-\sTopic$/i.test(author);
+        meta = { title: title === id ? '' : title, artist: author.replace(/\s-\sTopic$/i, '') };
+        const mode = ['auto', 'square', 'original', 'off'].includes(settings.coverArt) ? settings.coverArt : 'auto';
+        if (mode !== 'off') {
+          const cover = await Promise.race([
+            chrome.runtime.sendMessage({ type: 'ytdl:cover', videoId: id, mode, isTopic }),
+            new Promise((res) => setTimeout(() => res(null), 10000)),
+          ]).catch(() => null);
+          if (cover && cover.b64) meta.cover = cover;
+        }
+      }
+    } catch { /* cover art is optional: carry on without it */ }
     finally { starting--; }
     jobs.set(jobId, { videoId: id, title, mode: req.mode, label: req.label || '', sig });
     lockPage(true);
     saveJobs([row_(jobId, { status: 'running', phase: 'prepare', message: 'Preparing…', ratio: null })]);
     toast({ text: 'Preparing…', ratio: null, cancel: true, sticky: true });
     refreshBusy();
-    send('ytdl:start', { jobId, videoId: id, ...req, prefix: req.mode === 'audio' ? AUDIO_MARK : '' });
+    send('ytdl:start', { jobId, videoId: id, ...req, meta, prefix: req.mode === 'audio' ? AUDIO_MARK : '' });
   }
 
   document.addEventListener('ytdl:progress', async (e) => {
@@ -334,13 +353,8 @@
         // Finished: it leaves the queue and lands in History.
         addHistory(d.result);
         dropJob(d.jobId); lastRow.delete(d.jobId);
-        let extra = '';
-        if (!gate.unlocked) {
-          await bumpFree();
-          const left = FREE_LIMIT - gate.used;
-          extra = left > 0 ? ` · ${left} free download${left > 1 ? 's' : ''} left` : ' · that was your last free one';
-        }
-        toast({ text: `Saved: ${unmark(d.result.filename)}${extra}`, tone: 'ok' });
+        if (!gate.unlocked) await bumpFree();
+        toast({ text: `Saved: ${unmark(d.result.filename)}`, tone: 'ok' });
       } else if (d.phase === 'cancelled') { dropJob(d.jobId); lastRow.delete(d.jobId); toast({ text: 'Download cancelled.' }); }
       else { saveJobs([row_(d.jobId, { status: 'error', message: d.message || 'Download failed.' })]); toast({ text: d.message || 'Download failed.', tone: 'error' }); }
     }
@@ -372,10 +386,11 @@
   window.addEventListener('pagehide', () => { for (const [id] of jobs) saveJobs([row_(id, { status: 'error', message: 'Interrupted: the YouTube tab was closed or reloaded.' })]); });
 
   function refreshBusy() {
-    const b = $('.ytdl-btn'); if (!b) return;
-    b.classList.toggle('ytdl-busy', jobs.size > 0);
-    b.dataset.count = jobs.size ? String(jobs.size) : '';
-    b.title = jobs.size ? `Download (${jobs.size} running)` : 'Download';
+    for (const b of document.querySelectorAll('.ytdl-btn')) {
+      b.classList.toggle('ytdl-busy', jobs.size > 0);
+      b.dataset.count = jobs.size ? String(jobs.size) : '';
+      b.title = jobs.size ? `Download (${jobs.size} running)` : 'Download';
+    }
   }
 
   /* -------------------------------- menu -------------------------------- */

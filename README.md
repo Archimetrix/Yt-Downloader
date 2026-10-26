@@ -6,7 +6,7 @@
 
 **Download YouTube videos and audio in MP4, WebM, MKV or M4A, at any quality, right from the player.**
 
-![Extension version](https://img.shields.io/badge/version-1.1.0-ff3d57?style=for-the-badge)
+![Extension version](https://img.shields.io/badge/version-1.1.1-ff3d57?style=for-the-badge)
 ![Manifest](https://img.shields.io/badge/Manifest-V3-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)
 ![Chrome](https://img.shields.io/badge/Chrome-111%2B-34A853?style=for-the-badge&logo=googlechrome&logoColor=white)
 ![Chromium](https://img.shields.io/badge/Chromium--based-supported-FF8A3D?style=for-the-badge)
@@ -23,7 +23,7 @@
 | | |
 |---|---|
 | **Extension name** | YT DOWNLOADER |
-| **Extension version** | `1.1.0` |
+| **Extension version** | `1.1.1` |
 | **Manifest version** | `3` (MV3) |
 | **Browsers** | Google Chrome 111 or newer, and other Chromium-based browsers with MV3 support (Edge, Brave, Opera, Vivaldi). Only Chrome is tested. Firefox and Safari are not supported. |
 | **Permissions** | `storage`, `downloads`, `alarms` |
@@ -191,3 +191,15 @@ If this saves you time, you can support its development:
 - **Not for the Chrome Web Store.** Store policy does not allow YouTube downloaders, so this project is distributed only through GitHub.
 
 Read the full text in [`DISCLAIMER.md`](DISCLAIMER.md). Code is licensed under the Apache License 2.0 (`LICENSE`, `NOTICE`); third-party libraries keep their own licenses (`THIRD_PARTY_NOTICES.md`).
+
+## What's new in 1.2.0
+
+- **Cover art for audio downloads** (Settings > Cover art): the thumbnail is embedded in the file together with the song title and artist.
+  *Auto* detects real songs (square album art inside a black 16:9 frame) and saves a clean square cover. Normal videos keep their wide thumbnail. Other choices: always square, original thumbnail, or none. M4A is the most compatible; Opus (WebM) files also carry the cover, but some players ignore it.
+- **Save folders**: type a folder name in Settings; use `/` for sub-folders, e.g. `YouTube/Videos` and `YouTube/Audios`. Missing folders are created inside Downloads.
+
+## What's new in 1.4.0
+
+- **YouTube only.** YouTube Music (music.youtube.com) support was removed. The extension now runs on www.youtube.com only.
+- **Cleaner settings.** Settings are grouped into Download button, Video, Audio, Save to and More, with one row per option.
+- **Quieter free downloads.** The "free downloads left" messages are gone; you just see "Saved: ...".
