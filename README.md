@@ -32,6 +32,21 @@
 | **License** | Apache License 2.0 |
 
 ---
+## 📦 Installation
+
+**The extension is installed as an unpacked extension for all chromium browsers like(Chrome,brave,edge,opera,helium,vivaldi etc.).**
+
+1. Download the latest zip from [Releases](https://github.com/Archimetrix/Yt-Downloader/releases) and unzip it into a folder you will keep.
+2. Open `chrome://extensions` or just go to your browser extension settings and turn on **Developer mode**.
+3. Click **Load unpacked** and select the folder (the one that contains `manifest.json`).
+4. Open any `youtube.com/watch` page. The download button appears in the player controls.
+
+**Firefox Browser- get from addon store.**
+<p float="left">
+  <a href="https://addons.mozilla.org/en-US/firefox/addon/yt_downloader/" target="_blank">
+    <img src="https://blog.mozilla.org/addons/files/2020/04/get-the-addon-fx-apr-2020.svg" alt="Get the Add-on for Firefox" height="56">
+  </a>
+</p>
 
 ## ✨ Features
 
