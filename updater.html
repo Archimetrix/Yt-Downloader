@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>YT DOWNLOADER — One-click updates</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { color-scheme: dark; --bg:#0f0f16; --card:#171720; --line:rgba(255,255,255,.09); --t1:#eeeef5; --t2:#a3a3b8; --accent:#ff3d57; --bad:#f87171; }
+    * { box-sizing: border-box; }
+    body { margin:0; min-height:100vh; display:grid; place-items:center; background:radial-gradient(900px 500px at 50% -10%, rgba(255,61,87,.14), transparent), var(--bg); color:var(--t1); font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { width:min(520px, 92vw); background:var(--card); border:1px solid var(--line); border-radius:20px; padding:28px; box-shadow:0 30px 60px -30px #000; }
+    header { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+    header img { width:40px; height:40px; border-radius:10px; }
+    h1 { font-size:17px; margin:0; } header span { font-size:12px; color:var(--t2); }
+    p { color:var(--t2); margin:8px 0; }
+    .beta { display:inline-block; vertical-align:middle; margin-left:6px; padding:2px 8px; border-radius:99px; font-size:10px; font-weight:800; letter-spacing:.08em; background:rgba(251,191,36,.14); color:#fbbf24; border:1px solid rgba(251,191,36,.3); }
+    .beta-note { margin-top:18px; font-size:11.5px; color:var(--t2); opacity:.8; }
+    #prog { display:none; margin-top:18px; } #prog.show { display:block; }
+    .bar { height:8px; border-radius:99px; background:rgba(255,255,255,.08); overflow:hidden; }
+    .bar i { display:block; height:100%; width:0; border-radius:99px; background:linear-gradient(90deg,var(--accent),#ff8a3d); transition:width .25s ease; }
+    #prog.fail .bar i { background:var(--bad); } #prog.done .bar i { background:#4ade80; }
+    .prog-meta { display:flex; justify-content:space-between; margin-top:8px; font-size:12.5px; color:var(--t2); } .prog-meta b { color:var(--t1); font-variant-numeric:tabular-nums; }
+    #steps { list-style:none; margin:12px 0 0; padding:0; display:grid; gap:6px; font-size:12.5px; }
+    #steps li { display:flex; align-items:center; gap:9px; color:var(--t2); opacity:.55; }
+    #steps li::before { content:''; width:14px; height:14px; border-radius:50%; border:2px solid currentColor; flex:none; }
+    #steps li.active { opacity:1; color:var(--t1); } #steps li.active::before { border-color:var(--accent); border-top-color:transparent; animation:spin .8s linear infinite; }
+    #steps li.done { opacity:1; color:var(--accent); } #steps li.done::before { content:'✓'; display:grid; place-items:center; font-size:9px; font-weight:900; background:var(--accent); border-color:var(--accent); color:#fff; }
+    #prog.fail #steps li.active { color:var(--bad); } #prog.fail #steps li.active::before { animation:none; border-color:var(--bad); }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .pill { display:inline-block; padding:3px 10px; border-radius:99px; font-size:11px; font-weight:700; background:rgba(255,61,87,.14); color:var(--accent); border:1px solid rgba(255,61,87,.3); }
+    .pill.warn { background:rgba(251,191,36,.1); color:#fbbf24; border-color:rgba(251,191,36,.25); }
+    ol { color:var(--t2); padding-left:20px; margin:10px 0; } li { margin:4px 0; }
+    code { background:rgba(255,255,255,.07); padding:1px 6px; border-radius:6px; font-size:12px; color:var(--t1); }
+    .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
+    button { font:inherit; font-weight:700; border-radius:12px; padding:11px 18px; cursor:pointer; border:1px solid var(--line); background:rgba(255,255,255,.06); color:var(--t1); }
+    button:hover { background:rgba(255,255,255,.1); }
+    button.primary { background:linear-gradient(135deg,var(--accent),#ff8a3d); color:#fff; border:0; }
+    button:disabled { opacity:.5; cursor:default; }
+    #log { margin-top:16px; padding:12px 14px; border-radius:12px; background:rgba(255,255,255,.04); border:1px solid var(--line); color:var(--t2); font-size:12.5px; display:none; }
+    #log.show { display:block; } #log.error { color:var(--bad); border-color:rgba(248,113,113,.3); background:rgba(248,113,113,.07); } #log.ok { color:var(--accent); }
+    .hint { font-size:12px; margin-top:14px; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <img src="icons/128.png" alt="">
+      <div><h1>One-click updates <span class="beta">BETA</span></h1><span id="ver">YT DOWNLOADER</span></div>
+    </header>
+    <div id="view"></div>
+    <div id="prog" aria-live="polite">
+      <div class="bar"><i id="barFill"></i></div>
+      <div class="prog-meta"><span id="progText">Starting…</span><b id="progPct">0%</b></div>
+      <ul id="steps"></ul>
+    </div>
+    <div id="log" role="status"></div>
+    <p class="beta-note">Beta: this one-click updater is new. If anything goes wrong, your previous files are restored automatically, and you can always update manually from the Releases page.</p>
+  </main>
+  <script src="smooth-update.js"></script>
+  <script src="updater.js"></script>
+</body>
+</html>

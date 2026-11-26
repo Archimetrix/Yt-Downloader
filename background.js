@@ -8,7 +8,12 @@
  */
 'use strict';
 
+// one-click updater engine (shared with updater.html); a missing file must never break downloads
+try { importScripts('smooth-update.js'); } catch (e) { console.warn('[YT DOWNLOADER] smooth-update.js not loaded:', e && e.message); }
+
 const AUDIO_MARK_RE = /^[~_]?ytdl-audio(?:~|--)/; // Chrome may turn a leading ~ into _; keep in sync with content.js // keep in sync with content.js
+
+const PL_MARK_RE = /^ytdl-pl--((?:(?!--).)+)--/; // keep in sync with content.js
 
 function cleanName(s) {
   return String(s).replace(/[\\/:*?"<>|\u0000-\u001f]/g, '').replace(/\s+/g, ' ').replace(/^[. ]+|[. ]+$/g, '').slice(0, 80);
@@ -28,7 +33,11 @@ chrome.downloads.onDeterminingFilename.addListener((item, suggest) => {
     const isAudio = !!markM;
     if (isAudio) base = base.slice(markM[0].length) || 'audio';
     // Older versions had one folder for everything: keep using it until the user sets the new ones.
-    const dir = cleanPath(isAudio ? (audioFolder ?? baseFolder) : (videoFolder ?? baseFolder));
+    // A playlist run adds "ytdl-pl--<folder>--" after that: the file goes into a sub-folder of the video/audio folder.
+    let sub = '';
+    const plM = base.match(PL_MARK_RE);
+    if (plM) { sub = cleanName(plM[1]); base = base.slice(plM[0].length) || (isAudio ? 'audio' : 'video'); }
+    const dir = cleanPath([isAudio ? (audioFolder ?? baseFolder) : (videoFolder ?? baseFolder), sub].filter(Boolean).join('/'));
     suggest({ filename: dir ? `${dir}/${base}` : base, conflictAction: 'uniquify' });
   }).catch(() => suggest());
   return true;
@@ -139,8 +148,13 @@ async function fetchLatest() {
     const r = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, { headers: { Accept: 'application/vnd.github+json' }, cache: 'no-store' });
     if (r.ok) {
       const j = await r.json();
-      const zip = (j.assets || []).find((a) => /\.zip$/i.test(a.name));
-      return { version: String(j.tag_name || j.name || '').replace(/^v/i, ''), url: zip ? zip.browser_download_url : j.html_url, page: j.html_url, notes: String(j.body || '').slice(0, 600) };
+      const assets = j.assets || [];
+      const zip = assets.find((a) => /\.zip$/i.test(a.name) && /yt|download/i.test(a.name)) || assets.find((a) => /\.zip$/i.test(a.name));
+      const dg = zip && /^sha256:([0-9a-f]{64})$/i.exec(String(zip.digest || ''));
+      return {
+        version: String(j.tag_name || j.name || '').replace(/^v/i, ''), url: zip ? zip.browser_download_url : j.html_url, page: j.html_url, notes: String(j.body || '').slice(0, 600),
+        zipUrl: zip ? zip.browser_download_url : '', sha256: dg ? dg[1].toLowerCase() : '', zipSize: zip ? Number(zip.size) || 0 : 0,
+      };
     }
   } catch { /* try fallback */ }
   // 2) fallback: manifest.json on the main branch
@@ -188,6 +202,52 @@ chrome.runtime.onMessage.addListener((msg, _s, send) => {
     return true;
   }
 });
+
+/* ------------------------- one-click (smooth) update -------------------------
+ * For unpacked installs: the user connects the extension folder once, then an update
+ * downloads the release ZIP, checks its SHA-256, and overwrites the files in place
+ * (manifest.json last, with rollback). Engine: smooth-update.js (same as updater.html).
+ * Store installs (Chrome Web Store / AMO) update themselves and never use this.
+ */
+let smoothRunning = false;
+const setProgress = (p) => chrome.storage.local.set({ smoothProgress: { ...p, ts: Date.now() } }).catch(() => {});
+
+async function smoothStatus() {
+  if (typeof YtdlSmoothUpdate === 'undefined') return { unsupported: true, store: !!chrome.runtime.getManifest().update_url };
+  const st = await YtdlSmoothUpdate.status();
+  const { smoothUpdatesEnabled = true, updateInfo = null } = await chrome.storage.local.get({ smoothUpdatesEnabled: true, updateInfo: null });
+  return { ...st, enabled: smoothUpdatesEnabled !== false, store: !!chrome.runtime.getManifest().update_url, canApply: !!(updateInfo && updateInfo.available && updateInfo.zipUrl) };
+}
+
+async function smoothApply() {
+  if (typeof YtdlSmoothUpdate === 'undefined') return { ok: false, code: 'UNSUPPORTED', message: 'One-click updates are not available in this build.' };
+  if (smoothRunning) return { ok: false, code: 'BUSY', message: 'An update is already in progress.' };
+  const { updateInfo: info = null, dlJobs = [] } = await chrome.storage.local.get(['updateInfo', 'dlJobs']);
+  if (!info || !info.available || !info.zipUrl) return { ok: false, code: 'NO_UPDATE', message: 'This release has no ZIP to install automatically. Use the manual download.' };
+  // reloading the extension mid-download would lose its progress and history entry
+  if (dlJobs.some((j) => j && j.status === 'running' && Date.now() - (j.ts || 0) < 20000)) return { ok: false, code: 'DOWNLOADING', message: 'A download is still running. Let it finish (or cancel it), then update.' };
+  smoothRunning = true;
+  try {
+    const r = await YtdlSmoothUpdate.applyUpdate({ zipUrl: info.zipUrl, sha256: info.sha256, expectedVersion: info.version, sizeHint: info.zipSize, onProgress: setProgress });
+    await setProgress({ phase: 'done', pct: 100, text: `Updated to v${r.version}. Reloading…` });
+    setTimeout(() => chrome.runtime.reload(), 1200);
+    return { ok: true, version: r.version };
+  } catch (e) {
+    const code = (e && e.code) || 'ERROR';
+    await setProgress({ phase: 'error', pct: 0, text: (e && e.message) || 'Update failed.', code });
+    return { ok: false, code, message: (e && e.message) || 'Update failed.' };
+  } finally { smoothRunning = false; }
+}
+
+chrome.runtime.onMessage.addListener((msg, sender, send) => {
+  if (!msg || (msg.type !== 'ytdl:smooth-status' && msg.type !== 'ytdl:smooth-apply')) return;
+  // extension pages only (popup / updater.html) — never the YouTube content script
+  if (!sender || sender.id !== chrome.runtime.id || /^https?:/i.test(sender.url || '')) { send(null); return; }
+  (msg.type === 'ytdl:smooth-status' ? smoothStatus() : smoothApply()).then(send, (e) => send({ ok: false, message: (e && e.message) || 'Something went wrong.' }));
+  return true;
+});
+chrome.runtime.onStartup.addListener(() => chrome.storage.local.remove('smoothProgress'));
+chrome.runtime.onInstalled.addListener(() => chrome.storage.local.remove('smoothProgress'));
 
 
 /* ------------------------------ star gate ------------------------------
