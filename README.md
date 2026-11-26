@@ -16,6 +16,20 @@
 </div>
 
 ---
+# 📦 Installation
+## ALL CHROMIUM BROWSERS (Chrome,brave,edge,opera,vivaldi etc .)
+
+The extension is installed as an unpacked extension for all chromium Browsers.
+
+1. Download the latest zip from [Releases](https://github.com/Archimetrix/Yt-Downloader/releases) and unzip it into a folder you will keep.
+2. Open `chrome://extensions` and turn on **Developer mode**.
+3. Click **Load unpacked** and select the folder (the one that contains `manifest.json`).
+4. Open any `youtube.com/watch` page. The download button appears in the player controls.
+
+## Firefox Browser  
+<a href="https://addons.mozilla.org/en-US/firefox/addon/yt_downloader/" target="_blank">
+    <img src="https://blog.mozilla.org/addons/files/2020/04/get-the-addon-fx-apr-2020.svg" alt="Get the Add-on for Firefox" height="56">
+  </a>
 
 ## At a glance
 
@@ -96,16 +110,6 @@ Notes:
 - At high resolutions YouTube often doesn't offer H.264, so MP4 may show AV1, or those resolutions may only appear in WebM and MKV. The menu tells you when that happens.
 - No conversion is done. Streams are downloaded and joined as they are, so **MP3, WAV and re-encoding are not supported**.
 
----
-
-## 📦 Installation
-
-The extension is installed as an unpacked extension.
-
-1. Download the latest zip from [Releases](https://github.com/Archimetrix/Yt-Downloader/releases) and unzip it into a folder you will keep.
-2. Open `chrome://extensions` and turn on **Developer mode**.
-3. Click **Load unpacked** and select the folder (the one that contains `manifest.json`).
-4. Open any `youtube.com/watch` page. The download button appears in the player controls.
 
 ---
 
